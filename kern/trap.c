@@ -187,7 +187,7 @@ trap_dispatch(struct Trapframe *tf)
 	// T_PGFLT: page fault
 	if(tf->tf_trapno == T_PGFLT){
 		page_fault_handler(tf);
-	}else if(tf->tf_trapno == T_BRKPT){
+	}else if(tf->tf_trapno == T_BRKPT){ //T_BRKPT:break point
 		monitor(tf);
 	}else{
 		print_trapframe(tf);
