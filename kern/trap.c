@@ -178,7 +178,7 @@ print_regs(struct PushRegs *regs)
 }
 
 static void
-trap_dispatch(struct Trapframe *tf)
+trap_dispatch(struct Trapframe *tf) 
 {
 	// Handle processor exceptions.
 	// LAB 3: Your code here.
