@@ -272,7 +272,9 @@ page_fault_handler(struct Trapframe *tf)
 
 	// We've already handled kernel-mode exceptions, so if we get here,
 	// the page fault happened in user mode.
-
+	if(tf->tf_cs &&0x1 == 0){
+		panic("page_fautl in kernel mode!\n");
+	}
 	// Destroy the environment that caused the fault.
 	cprintf("[%08x] user fault va %08x ip %08x\n",
 		curenv->env_id, fault_va, tf->tf_eip);

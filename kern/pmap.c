@@ -388,7 +388,7 @@ pgdir_walk(pde_t *pgdir, const void *va, int create)
 		new_page = page_alloc(1);
 		if(new_page == NULL)	return NULL;
 		new_page->pp_ref++;
-		*pde_addr = page2pa(new_page)|PTE_P|PTE_U|PTE_W;
+		*pde_addr = (page2pa(new_page)|PTE_P|PTE_W|PTE_U);
 	}
 	pte_addr = (pte_t*)KADDR(PTE_ADDR(*pde_addr));
 	return &pte_addr[pte_num];
@@ -554,7 +554,30 @@ int
 user_mem_check(struct Env *env, const void *va, size_t len, int perm)
 {
 	// LAB 3: Your code here.
-
+	/*
+	char* start = ROUNDUP((char*)va,PGSIZE);
+	char* end = ROUNDDOWN((char*)(va+len),PGSIZE);
+	pte_t* cur = NULL;
+	for(;start<end;start+=PGSIZE){
+		cur = pgdir_walk(env->env_pgdir,(void*)start,0);
+		if((int)start>ULIM||cur==NULL||((uint32_t)(*cur)&perm)!=perm){
+			if(start == ROUNDUP((char*)va,PGSIZE)){
+				user_mem_check_addr = (uintptr_t)va;
+			}else{
+				user_mem_check_addr = (uintptr_t)start;
+			}
+			return -E_FAULT;
+		}
+	}
+	*/
+	uintptr_t high = ROUNDUP((uintptr_t)va+len,PGSIZE);
+	for(uintptr_t low = (uintptr_t)va;low<high;low = ROUNDUP(low+1,PGSIZE)){
+		pte_t* pte = pgdir_walk(env->env_pgdir,(void*)low,false);
+		if(!pte || (~(*pte)&perm)|| low>=ULIM){
+			user_mem_check_addr=low;
+			return -E_FAULT;
+		}
+	}
 	return 0;
 }
 
