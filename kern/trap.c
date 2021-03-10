@@ -84,6 +84,8 @@ trap_init(void)
 	void handler18();
 	void handler19();
 
+	void t_syscall();
+
 	SETGATE(idt[0], 1, GD_KT, handler0, 0); 
 	SETGATE(idt[1], 1, GD_KT, handler1, 3);
 	SETGATE(idt[2], 1, GD_KT, handler2, 0); 
@@ -103,7 +105,7 @@ trap_init(void)
 	SETGATE(idt[18], 1, GD_KT, handler18, 0); 
 	SETGATE(idt[19], 1, GD_KT, handler19, 0);
 
-
+	SETGATE(idt[T_SYSCALL],0,GD_KT,t_syscall,3);
 	// Per-CPU setup 
 	trap_init_percpu();
 }
@@ -185,17 +187,34 @@ trap_dispatch(struct Trapframe *tf)
 
 	// Unexpected trap: The user process or the kernel has a bug.
 	// T_PGFLT: page fault
-	if(tf->tf_trapno == T_PGFLT){
-		page_fault_handler(tf);
-	}else if(tf->tf_trapno == T_BRKPT){ //T_BRKPT:break point
-		monitor(tf);
-	}else{
-		print_trapframe(tf);
-		if (tf->tf_cs == GD_KT)
-			panic("unhandled trap in kernel");
-		else {
-			env_destroy(curenv);
-			return;
+	int32_t ret_code;
+	switch(tf->tf_trapno){
+		case(T_PGFLT):{
+			page_fault_handler(tf);
+			break;
+		}
+		case(T_BRKPT):{
+			monitor(tf);
+			break;
+		}
+		case(T_SYSCALL):{
+			ret_code = syscall(tf->tf_regs.reg_eax,
+							   tf->tf_regs.reg_edx,
+							   tf->tf_regs.reg_ecx,
+							   tf->tf_regs.reg_ebx,
+							   tf->tf_regs.reg_edi,
+							   tf->tf_regs.reg_esi);
+			tf->tf_regs.reg_eax = ret_code;
+			break;
+		}
+		default:{
+			print_trapframe(tf);
+			if (tf->tf_cs == GD_KT)
+				panic("unhandled trap in kernel");
+			else {
+				env_destroy(curenv);
+				return;
+			}
 		}
 	}
 }

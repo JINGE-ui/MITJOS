@@ -65,7 +65,7 @@
  TRAPHANDLER(handler18, T_MCHK) 
  TRAPHANDLER(handler19, T_SIMDERR)
 
-
+ TRAPHANDLER_NOEC(t_syscall,T_SYSCALL)
 
 
 /*
