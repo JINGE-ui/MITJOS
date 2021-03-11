@@ -93,26 +93,46 @@ trap_init(void)
 
 	void t_syscall();
 
-	SETGATE(idt[0], 1, GD_KT, handler0, 0); 
-	SETGATE(idt[1], 1, GD_KT, handler1, 3);
-	SETGATE(idt[2], 1, GD_KT, handler2, 0); 
-	SETGATE(idt[3], 1, GD_KT, handler3, 3); 
-	SETGATE(idt[4], 1, GD_KT, handler4, 0); 
-	SETGATE(idt[5], 1, GD_KT, handler5, 0); 
-	SETGATE(idt[6], 1, GD_KT, handler6, 0); 
-	SETGATE(idt[7], 1, GD_KT, handler7, 0); 
-	SETGATE(idt[8], 1, GD_KT, handler8, 0); 
-	SETGATE(idt[10], 1, GD_KT, handler10, 0); 
-	SETGATE(idt[11], 1, GD_KT, handler11, 0); 
-	SETGATE(idt[12], 1, GD_KT, handler12, 0);
-	SETGATE(idt[13], 1, GD_KT, handler13, 0); 
-	SETGATE(idt[14], 1, GD_KT, handler14, 0); 
-	SETGATE(idt[16], 1, GD_KT, handler16, 0); 
-	SETGATE(idt[17], 1, GD_KT, handler17, 0); 
-	SETGATE(idt[18], 1, GD_KT, handler18, 0); 
-	SETGATE(idt[19], 1, GD_KT, handler19, 0);
+	void DEFAULT();
+	// device
+	void TIMER();
+	void KEYBOARD();
+	void SLAVE();
+	void SERIAL();
+	void SPURIOUS();
+	void IDE();
+	void ERROR();
+
+	SETGATE(idt[0], 0, GD_KT, handler0, 0); 
+	SETGATE(idt[1], 0, GD_KT, handler1, 3);
+	SETGATE(idt[2], 0, GD_KT, handler2, 0); 
+	SETGATE(idt[3], 0, GD_KT, handler3, 3); 
+	SETGATE(idt[4], 0, GD_KT, handler4, 0); 
+	SETGATE(idt[5], 0, GD_KT, handler5, 0); 
+	SETGATE(idt[6], 0, GD_KT, handler6, 0); 
+	SETGATE(idt[7], 0, GD_KT, handler7, 0); 
+	SETGATE(idt[8], 0, GD_KT, handler8, 0); 
+	SETGATE(idt[10], 0, GD_KT, handler10, 0); 
+	SETGATE(idt[11], 0, GD_KT, handler11, 0); 
+	SETGATE(idt[12], 0, GD_KT, handler12, 0);
+	SETGATE(idt[13], 0, GD_KT, handler13, 0); 
+	SETGATE(idt[14], 0, GD_KT, handler14, 0); 
+	SETGATE(idt[16], 0, GD_KT, handler16, 0); 
+	SETGATE(idt[17], 0, GD_KT, handler17, 0); 
+	SETGATE(idt[18], 0, GD_KT, handler18, 0); 
+	SETGATE(idt[19], 0, GD_KT, handler19, 0);
 
 	SETGATE(idt[T_SYSCALL],0,GD_KT,t_syscall,3);
+
+	SETGATE(idt[T_DEFAULT], 0, GD_KT, DEFAULT, 3);
+	// device
+	SETGATE(idt[IRQ_OFFSET+IRQ_TIMER], 0, GD_KT, TIMER, 0);
+	SETGATE(idt[IRQ_OFFSET+IRQ_KBD], 0, GD_KT, KEYBOARD, 0);
+	SETGATE(idt[IRQ_OFFSET+IRQ_SLAVE], 0, GD_KT, SLAVE, 0);
+	SETGATE(idt[IRQ_OFFSET+IRQ_SERIAL], 0, GD_KT, SERIAL, 0);
+	SETGATE(idt[IRQ_OFFSET+IRQ_SPURIOUS], 0, GD_KT, SPURIOUS, 0);
+	SETGATE(idt[IRQ_OFFSET+IRQ_IDE], 0, GD_KT, IDE, 0);
+	SETGATE(idt[IRQ_OFFSET+IRQ_ERROR], 0, GD_KT, ERROR, 0);
 	// Per-CPU setup 
 	trap_init_percpu();
 }
